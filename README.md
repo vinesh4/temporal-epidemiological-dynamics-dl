@@ -1,4 +1,4 @@
-# Inferring Temporal Epidemiological Dynamics with Deep Learning using phylogenetic trees. Adelaide University capstone project, 2026.
+# Inferring Temporal Epidemiological Dynamics with Deep Learning using simulated phylogenetic trees.
 
 This code takes a simulated tree and estimates 8 numbers from it. These are the birth rate and the death rate in each of 3 time periods and 2 times when the rates change. The model used is an attention based MLP that reads the tree as a list of events.
 
