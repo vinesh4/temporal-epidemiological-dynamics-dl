@@ -94,7 +94,7 @@ Step 4. Click **Runtime**, then **Run all**, and do not change any settings. Tra
 
 ### Part 4. Test the models on real trees
 
-This part runs `real_data_test.ipynb`. It applies the final attention MLP, and the CNN for comparison, to three real trees: HIV in Zurich, influenza H3N2 and SARS-CoV-2. It turns each real tree into trees of 500 tips, estimates the 8 numbers, and converts the rates to "per year" and the change times to "years before the latest sample".
+This part runs `real_data_test.ipynb`. It applies the final attention MLP, and the CNN for comparison, to three real trees: HIV in Zurich, influenza H3N2 and SARS-CoV-2. It turns each real tree into trees of 500 tips, estimates the 8 numbers, and converts the rates to "per year" and the change times to "years before the latest sample". At the end it checks every step of the tree processing.
 
 Step 1. Go to <https://colab.research.google.com>, click **File**, then **Open notebook**, click the **GitHub** tab, paste <https://github.com/vinesh4/temporal-epidemiological-dynamics-dl> and choose `real_data_test.ipynb`.
 
@@ -126,6 +126,16 @@ Step 6. Check the results.
 > Note: this is close to, but not the same as, the 0.1466 of Part 3. The weights come from a separate training run with the same code, and differences of this size are normal on a GPU (see Part 3, Step 4).
 
 - The main outputs are the table of estimates for each real tree (median and 95% range) and a box plot of the change times. For example, both models place the influenza changes about 6.6 and 4.6 to 4.8 years before the latest sample.
-- When the run finishes, `m4_results.zip` (tables, plots and the 500-tip trees) appears in the folder panel. Click the three dots next to it and choose **Download**. With `USE_DRIVE = True`, the same files are also in `capstone_m4` in your Google Drive.
+- Section 10 checks the tree processing and prints PASS, NOTE or CHECK for each check. Our run gave 34 PASS and 2 NOTE (real tips on zero-length branches are read as sampled ancestors). Any CHECK means a step did not work as expected.
+- When the run finishes, `m4_results.zip` (tables, plots, the 500-tip trees, the checks and the iTOL files) appears in the folder panel. Click the three dots next to it and choose **Download**. With `USE_DRIVE = True`, the same files are also in `capstone_m4` in your Google Drive.
 
 > The real trees have no known true values, so these numbers show whether the models give stable answers on real data, not how accurate they are.
+
+Step 7 (optional). Look at the processed trees in iTOL.
+
+1. Unzip `m4_results.zip` and open the folder `checks/itol`. For each real tree it holds the original tree (`_original.nwk`), the first processed tree in years with the original tip names (`_subtree1_years.nwk`) and the list of kept tips (`_kept_tip_names.txt`).
+2. Open <https://itol.embl.de/upload.cgi> and upload `Zurich_HIV_original.nwk`. In the control panel on the right, choose **Rectangular**, set **Branch lengths** to **Use** and **Labels** to **Hide**.
+3. In a new browser tab, upload `Zurich_HIV_subtree1_years.nwk` with the same settings. The two trees should look the same.
+4. For SARS-CoV-2, open `Nextstrain_SARS_CoV_2_kept_tip_names.txt`, add the two lines `PRUNE` and `DATA` at the top, save it, and drag it onto the original tree in iTOL to keep only those tips. Then compare it with `Nextstrain_SARS_CoV_2_subtree1_years.nwk`. The only difference should be extra branches of length 0 where polytomies were split.
+
+> Do not upload the influenza files to iTOL or anywhere else. They come from GISAID data, which may not be passed on to third parties.
