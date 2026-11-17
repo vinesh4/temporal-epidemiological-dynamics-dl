@@ -1,0 +1,6 @@
+phylogenie==3.10.0
+numpy
+pandas
+matplotlib
+tensorflow
+scikit-learn
