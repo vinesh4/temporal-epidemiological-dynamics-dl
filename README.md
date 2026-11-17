@@ -92,3 +92,40 @@ On Windows, you can find the files from Ubuntu in File Explorer by typing `\\wsl
 
 Step 4. Click **Runtime**, then **Run all**, and do not change any settings. Training takes about 2.7 hours on L4 GPU and longer on T4, so keep the tab open. The overall error score should be about 0.1466. Differences of about 0.005 are normal on a GPU. The result files appear in the folder panel. To save, click the three dots next to each and choose **Download**.
 
+### Part 4. Test the models on real trees
+
+This part runs `real_data_test.ipynb`. It applies the final attention MLP, and the CNN for comparison, to three real trees: HIV in Zurich, influenza H3N2 and SARS-CoV-2. It turns each real tree into trees of 500 tips, estimates the 8 numbers, and converts the rates to "per year" and the change times to "years before the latest sample".
+
+Step 1. Go to <https://colab.research.google.com>, click **File**, then **Open notebook**, click the **GitHub** tab, paste <https://github.com/vinesh4/temporal-epidemiological-dynamics-dl> and choose `real_data_test.ipynb`.
+
+Step 2. Click **Runtime**, then **Change runtime type**, choose a GPU (L4 or T4) and click **Save**.
+
+Step 3. Click the folder icon on the left and drag in the same two zip files you used in Part 3. Do not unzip them.
+
+> Note: this repeats Step 3 of Part 3 on purpose. Each Colab notebook runs in its own session, so the files from Part 3 are not there any more. The notebook needs the simulated trees to rebuild the same split and scaling as `main.ipynb` and to find the typical height of a simulated tree, which is used to put the real trees on the same time scale.
+
+Step 4. Download the influenza tree yourself and drag it into the same panel:
+
+1. Open <https://nextstrain.org/seasonal-flu/h3n2/ha/2y>.
+2. Scroll to the bottom, click **Download data**, then **Newick (timetree)**.
+3. Rename the file to `nextstrain_seasonal-flu_h3n2_ha_2y_timetree.nwk` if it has another name.
+
+This tree is built from sequences shared through GISAID, whose terms do not allow us to share it, so it is not included. Nextstrain updates the tree regularly, so the influenza results will be slightly different from ours. The other two trees are downloaded automatically.
+
+Step 5. Click **Runtime**, then **Run all**, and keep `RETRAIN = False`.
+
+- Colab asks for access to your Google Drive. Allow it, because the results are saved there. If you prefer not to, set `USE_DRIVE = False` in the settings cell before you run.
+- The notebook downloads the saved model weights and the Zurich and SARS-CoV-2 trees from Google Drive, so no training is needed. It takes about 15 minutes, mostly reading the simulated trees.
+
+> Note: this notebook contains its own copy of the training code, which overlaps with Part 3. `main.ipynb` does not save its weights, so the models used on the real trees were trained in this notebook with the same code and settings, and their weights are shared on Google Drive. Training only runs if the weights cannot be downloaded or if you set `RETRAIN = True` (about 3 hours on an L4 GPU).
+
+Step 6. Check the results.
+
+- While loading, the notebook prints a score for each seed of the MLP: about 0.1507, 0.1505 and 0.1475. Their average prediction gives an overall error score of about 0.146.
+
+> Note: this is close to, but not the same as, the 0.1466 of Part 3. The weights come from a separate training run with the same code, and differences of this size are normal on a GPU (see Part 3, Step 4).
+
+- The main outputs are the table of estimates for each real tree (median and 95% range) and a box plot of the change times. For example, both models place the influenza changes about 6.6 and 4.6 to 4.8 years before the latest sample.
+- When the run finishes, `m4_results.zip` (tables, plots and the 500-tip trees) appears in the folder panel. Click the three dots next to it and choose **Download**. With `USE_DRIVE = True`, the same files are also in `capstone_m4` in your Google Drive.
+
+> The real trees have no known true values, so these numbers show whether the models give stable answers on real data, not how accurate they are.
