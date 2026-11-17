@@ -94,48 +94,21 @@ Step 4. Click **Runtime**, then **Run all**, and do not change any settings. Tra
 
 ### Part 4. Test the models on real trees
 
-This part runs `real_data_test.ipynb`. It applies the final attention MLP, and the CNN for comparison, to three real trees: HIV in Zurich, influenza H3N2 and SARS-CoV-2. It turns each real tree into trees of 500 tips, estimates the 8 numbers, and converts the rates to "per year" and the change times to "years before the latest sample". At the end it checks every step of the tree processing.
+`real_data_test.ipynb` applies the final MLP (and the CNN for comparison) to three real trees (HIV in Zurich, influenza H3N2, SARS-CoV-2) and checks every step of the tree processing.
 
-Step 1. Go to <https://colab.research.google.com>, click **File**, then **Open notebook**, click the **GitHub** tab, paste <https://github.com/vinesh4/temporal-epidemiological-dynamics-dl> and choose `real_data_test.ipynb`.
+Step 1. Open `real_data_test.ipynb` in Colab from GitHub (as in Part 3) and choose a GPU.
 
-Step 2. Click **Runtime**, then **Change runtime type**, choose a GPU (L4 or T4) and click **Save**.
+Step 2. Drag in the same two zip files as in Part 3 (each Colab notebook has its own session).
 
-Step 3. Click the folder icon on the left and drag in the same two zip files you used in Part 3. Do not unzip them.
+Step 3. Download the influenza tree from <https://nextstrain.org/seasonal-flu/h3n2/ha/2y> (**Download data** → **Newick (timetree)**), rename it to `nextstrain_seasonal-flu_h3n2_ha_2y_timetree.nwk` and drag it in. It is built from GISAID data, so we cannot share it, and Nextstrain updates it, so influenza results may differ slightly from ours. The other trees and the model weights are downloaded automatically.
 
-> Note: this repeats Step 3 of Part 3 on purpose. Each Colab notebook runs in its own session, so the files from Part 3 are not there any more. The notebook needs the simulated trees to rebuild the same split and scaling as `main.ipynb` and to find the typical height of a simulated tree, which is used to put the real trees on the same time scale.
+Step 4. Keep `RETRAIN = False` and click **Runtime** → **Run all** (about 15 minutes). Allow Google Drive access, or set `USE_DRIVE = False`.
 
-Step 4. Download the influenza tree yourself and drag it into the same panel:
+> Note: the notebook contains its own training code because `main.ipynb` does not save weights; the weights trained with this code are downloaded from Google Drive, so no training runs.
 
-1. Open <https://nextstrain.org/seasonal-flu/h3n2/ha/2y>.
-2. Scroll to the bottom, click **Download data**, then **Newick (timetree)**.
-3. Rename the file to `nextstrain_seasonal-flu_h3n2_ha_2y_timetree.nwk` if it has another name.
+Step 5. Check the results:
+- MLP seed scores about 0.1507, 0.1505 and 0.1475 (overall about 0.146; it differs slightly from the 0.1466 of Part 3 because the weights come from a separate run).
+- Section 10 should show 34 PASS and 2 NOTE, and no CHECK.
+- Download `m4_results.zip` from the folder panel. It holds the tables, plots, checks and the files for an optional visual check in iTOL (steps in Section 10 of the notebook).
 
-This tree is built from sequences shared through GISAID, whose terms do not allow us to share it, so it is not included. Nextstrain updates the tree regularly, so the influenza results will be slightly different from ours. The other two trees are downloaded automatically.
-
-Step 5. Click **Runtime**, then **Run all**, and keep `RETRAIN = False`.
-
-- Colab asks for access to your Google Drive. Allow it, because the results are saved there. If you prefer not to, set `USE_DRIVE = False` in the settings cell before you run.
-- The notebook downloads the saved model weights and the Zurich and SARS-CoV-2 trees from Google Drive, so no training is needed. It takes about 15 minutes, mostly reading the simulated trees.
-
-> Note: this notebook contains its own copy of the training code, which overlaps with Part 3. `main.ipynb` does not save its weights, so the models used on the real trees were trained in this notebook with the same code and settings, and their weights are shared on Google Drive. Training only runs if the weights cannot be downloaded or if you set `RETRAIN = True` (about 3 hours on an L4 GPU).
-
-Step 6. Check the results.
-
-- While loading, the notebook prints a score for each seed of the MLP: about 0.1507, 0.1505 and 0.1475. Their average prediction gives an overall error score of about 0.146.
-
-> Note: this is close to, but not the same as, the 0.1466 of Part 3. The weights come from a separate training run with the same code, and differences of this size are normal on a GPU (see Part 3, Step 4).
-
-- The main outputs are the table of estimates for each real tree (median and 95% range) and a box plot of the change times. For example, both models place the influenza changes about 6.6 and 4.6 to 4.8 years before the latest sample.
-- Section 10 checks the tree processing and prints PASS, NOTE or CHECK for each check. Our run gave 34 PASS and 2 NOTE (real tips on zero-length branches are read as sampled ancestors). Any CHECK means a step did not work as expected.
-- When the run finishes, `m4_results.zip` (tables, plots, the 500-tip trees, the checks and the iTOL files) appears in the folder panel. Click the three dots next to it and choose **Download**. With `USE_DRIVE = True`, the same files are also in `capstone_m4` in your Google Drive.
-
-> The real trees have no known true values, so these numbers show whether the models give stable answers on real data, not how accurate they are.
-
-Step 7 (optional). Look at the processed trees in iTOL.
-
-1. Unzip `m4_results.zip` and open the folder `checks/itol`. For each real tree it holds the original tree (`_original.nwk`), the first processed tree in years with the original tip names (`_subtree1_years.nwk`) and the list of kept tips (`_kept_tip_names.txt`).
-2. Open <https://itol.embl.de/upload.cgi> and upload `Zurich_HIV_original.nwk`. In the control panel on the right, choose **Rectangular**, set **Branch lengths** to **Use** and **Labels** to **Hide**.
-3. In a new browser tab, upload `Zurich_HIV_subtree1_years.nwk` with the same settings. The two trees should look the same.
-4. For SARS-CoV-2, open `Nextstrain_SARS_CoV_2_kept_tip_names.txt`, add the two lines `PRUNE` and `DATA` at the top, save it, and drag it onto the original tree in iTOL to keep only those tips. Then compare it with `Nextstrain_SARS_CoV_2_subtree1_years.nwk`. The only difference should be extra branches of length 0 where polytomies were split.
-
-> Do not upload the influenza files to iTOL or anywhere else. They come from GISAID data, which may not be passed on to third parties.
+> Do not share the influenza files in `m4_results.zip`: they come from GISAID data.
